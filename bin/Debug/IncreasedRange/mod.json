@@ -1,0 +1,9 @@
+{
+  "Id": "Increases everyone's targeting/potential aggro range",
+  "DisplayName": "Increased Targeting Range",
+  "Author": "FLSoz",
+  "Version": "0.1.0",
+  "Enable": true,
+  "AssemblyName": "IncreasedRange.dll",
+  "EntryMethod": "IncreasedRange.IngressPoint.Main"
+}
