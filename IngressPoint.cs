@@ -19,8 +19,8 @@ namespace IncreasedRange
         {
             public static void Postfix(ref TechWeapon __instance)
             {
-                __instance.m_ManualTargetingSettingsGamepad.m_ManualTargetingRadiusSP = 3000.0f;
-                __instance.m_ManualTargetingSettingsMAndKB.m_ManualTargetingRadiusSP = 3000.0f;
+                __instance.m_ManualTargetingSettingsGamepad.m_ManualTargetingRadiusSP = 900.0f;
+                __instance.m_ManualTargetingSettingsMAndKB.m_ManualTargetingRadiusSP = 900.0f;
             }
         }
 
@@ -30,7 +30,7 @@ namespace IncreasedRange
         {
             public static void Postfix(ref ChargeAtVisible __instance)
             {
-                __instance.m_AttackRange = 1500.0f;
+                __instance.m_AttackRange = 900.0f;
             }
         }
 
@@ -61,7 +61,7 @@ namespace IncreasedRange
         public static void Main()
         {
             FieldInfo m_SleepRangeFromCamera = typeof(ManTechs).GetField("m_SleepRangeFromCamera", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            m_SleepRangeFromCamera.SetValue(Singleton.Manager<ManTechs>.inst, 3000.0f);
+            m_SleepRangeFromCamera.SetValue(Singleton.Manager<ManTechs>.inst, 900.0f);
             HarmonyInstance.Create("flsoz.ttmm.increasedrange.mod").PatchAll(Assembly.GetExecutingAssembly());
 
             /* try
