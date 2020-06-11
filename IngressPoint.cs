@@ -62,7 +62,7 @@ namespace IncreasedRange
         {
             FieldInfo m_SleepRangeFromCamera = typeof(ManTechs).GetField("m_SleepRangeFromCamera", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             m_SleepRangeFromCamera.SetValue(Singleton.Manager<ManTechs>.inst, 3000.0f);
-            HarmonyInstance.Create("flsoz.ttmm.kaizott.mod").PatchAll(Assembly.GetExecutingAssembly());
+            HarmonyInstance.Create("flsoz.ttmm.increasedrange.mod").PatchAll(Assembly.GetExecutingAssembly());
 
             /* try
             {
