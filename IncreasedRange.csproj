@@ -37,6 +37,15 @@
     <Reference Include="Assembly-CSharp">
       <HintPath>..\..\TerraTechWin64_Data\Managed\Assembly-CSharp.dll</HintPath>
     </Reference>
+    <Reference Include="BehaviorDesigner.Runtime">
+      <HintPath>..\..\TerraTechWin64_Data\Managed\BehaviorDesigner.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="BehaviourDesigner">
+      <HintPath>..\..\TerraTechWin64_Data\Managed\BehaviourDesigner.dll</HintPath>
+    </Reference>
+    <Reference Include="DebugWrapper">
+      <HintPath>..\..\TerraTechWin64_Data\Managed\DebugWrapper.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -57,6 +66,25 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>del *.pdb
+
+@setlocal enableextensions enabledelayedexpansion
+
+set modpath="C:\Program Files (x86)\Steam\steamapps\common\TerraTech\QMods\$(TargetName)"
+
+for %25%25I in (*) do if not %25%25I == $(TargetFileName) (
+del "%25%25I"
+)
+
+if not exist !modpath! (
+echo Creating mod folder
+mkdir !modpath!
+)
+echo Copying to game
+set e=$(TargetDir)..\&gt;nul
+xcopy /S /Y /R "$(TargetFileName)" !modpath!</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
