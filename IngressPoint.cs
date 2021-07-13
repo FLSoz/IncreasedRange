@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Reflection;
 
-using Harmony;
+using HarmonyLib;
 using UnityEngine;
 using BehaviorDesigner.Runtime;
 using BehaviorDesigner.Runtime.Tasks;
@@ -273,7 +273,7 @@ namespace IncreasedRange
             FieldInfo m_SleepRangeFromCamera = typeof(ManTechs).GetField("m_SleepRangeFromCamera", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
             m_SleepRangeFromCamera.SetValue(Singleton.Manager<ManTechs>.inst, 2700.0f);
             Console.WriteLine($"Current sleep range: {m_SleepRangeFromCamera.GetValue(Singleton.Manager<ManTechs>.inst)}");
-            HarmonyInstance.Create("flsoz.ttmm.increasedrange.mod").PatchAll(Assembly.GetExecutingAssembly());
+            new Harmony("flsoz.ttmm.increasedrange.mod").PatchAll(Assembly.GetExecutingAssembly());
         }
     }
 }
