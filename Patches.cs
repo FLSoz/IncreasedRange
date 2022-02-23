@@ -115,7 +115,7 @@ namespace IncreasedRange
             } */
         }
 
-        [HarmonyPatch(typeof(TechVision), "ManualTargetingRadius", MethodType.Getter)]
+        [HarmonyPatch(typeof(TechWeapon), "ManualTargetingRadius", MethodType.Getter)]
         public static class PatchManualRange
         {
             [HarmonyPostfix]
