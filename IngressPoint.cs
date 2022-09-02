@@ -14,7 +14,7 @@ namespace IncreasedRange
 {
     public static class IngressPoint
     {
-        internal static float SleepRangeFromCamera = 2700.0f;   // What we modify it to
+        internal static float SleepRangeFromCamera = 600.0f;   // What we modify it to
         internal static float IncreasedRadarRange = 900.0f;
         internal static float IncreasedVisionRange = 900.0f;
         internal static float ManualTargetingRange = 900.0f;

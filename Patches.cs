@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Reflection;
+using System.Reflection.Emit;
 
 using HarmonyLib;
 using UnityEngine;
@@ -208,6 +209,151 @@ namespace IncreasedRange
             public static void Postfix(ref float __result)
             {
                 __result = Math.Max(IngressPoint.IncreasedVisionRange, __result);
+            }
+        }
+
+        [HarmonyPatch(typeof(CameraManager), "DetailDist01", MethodType.Getter)]
+        public static class PatchDetailX2
+        {
+            [HarmonyPostfix]
+            public static void Postfix(ref float __result)
+            {
+                __result = __result * 2;
+            }
+        }
+
+        internal static MethodInfo FocalTileCoord = AccessTools.Method(typeof(TileManager), "DetermineFocalTileCoord");
+
+        /*
+        [HarmonyPatch(typeof(WorldTile), "ClearNonSceneryVisibles")]
+        public static class PatchLogClearVisibles
+        {
+            [HarmonyPrefix]
+            public static void Prefix(WorldTile __instance)
+            {
+                Console.WriteLine($"UNLOADING TECHS ON TILE {__instance.Coord}, CENTER AT {__instance.WorldCentre}");
+            }
+        }
+
+        [HarmonyPatch(typeof(TileManager), "LoadTile")]
+        public static class PatchLoadTile
+        {
+            [HarmonyPrefix]
+            public static void Prefix(TileManager __instance, WorldTile tile)
+            {
+                Console.WriteLine($"LOADING TILE {tile.Coord}, CENTER AT {tile.WorldCentre}");
+                IntVector2 center = (IntVector2) FocalTileCoord.Invoke(__instance, null);
+                WorldTile centerTile = __instance.LookupTile(center, false);
+                if (centerTile != null)
+                {
+                    Console.WriteLine($"  CURRENT CENTER TILE {centerTile.Coord}, CENTER AT {centerTile.WorldCentre}");
+                }
+                else
+                {
+                    Console.WriteLine($"ERROR: CANNOT FIND CENTER TILE {center}");
+                }
+            }
+        }
+
+        [HarmonyPatch(typeof(TileManager), "DestroyTile")]
+        public static class PatchDestroyTile
+        {
+            [HarmonyPrefix]
+            public static void Prefix(TileManager __instance, WorldTile tile)
+            {
+                Console.WriteLine($"DESTROYING TILE {tile.Coord}, CENTER AT {tile.WorldCentre}");
+                IntVector2 center = (IntVector2)FocalTileCoord.Invoke(__instance, null);
+                WorldTile centerTile = __instance.LookupTile(center, false);
+                if (centerTile != null)
+                {
+                    Console.WriteLine($"  CURRENT CENTER TILE {centerTile.Coord}, CENTER AT {centerTile.WorldCentre}");
+                }
+                else
+                {
+                    Console.WriteLine($"ERROR: CANNOT FIND CENTER TILE {center}");
+                }
+            }
+        }
+        */
+
+        [HarmonyPatch(typeof(TileManager), "UpdateTileRequestStatesInFixedMode")]
+        public static class PatchTileLoadingFixed
+        {
+
+        }
+
+        [HarmonyPatch(typeof(TileManager), "UpdateTileRequestStatesInStandardMode")]
+        public static class PatchTileLoading
+        {
+            /*
+            [HarmonyPrefix]
+            internal static void Prefix()
+            {
+                Console.WriteLine("");
+                Console.WriteLine("UpdateTileRequestStatesInStandardMode:");
+            }
+
+            [HarmonyPostfix]
+            internal static void Postfix()
+            {
+                Console.WriteLine("");
+            }
+            */
+
+            [HarmonyTranspiler]
+            public static IEnumerable<CodeInstruction> Transpiler(IEnumerable<CodeInstruction> instructions)
+            {
+                List<CodeInstruction> originalInstructions = new List<CodeInstruction>(instructions);
+                List<CodeInstruction> patchedInstructions = new List<CodeInstruction>();
+                bool skipNext = false;
+                // bool skipFirst = true;
+                for (int i = 0; i < originalInstructions.Count; i++)
+                {
+                    CodeInstruction instruction = originalInstructions[i];
+                    if (skipNext)
+                    {
+                        skipNext = false;
+                    }
+                    else if (instruction.opcode == OpCodes.Ldc_I4_M1)
+                    {
+                        Console.WriteLine("Patched lower bounds of cell iteration");
+                        CodeInstruction newInstruction = instruction.Clone(OpCodes.Ldc_I4_2);
+                        newInstruction.labels = instruction.labels;
+                        patchedInstructions.Add(newInstruction);
+                        patchedInstructions.Add(new CodeInstruction(OpCodes.Neg));
+                    }
+                    else if (instruction.opcode == OpCodes.Ldc_I4_1 && originalInstructions[i + 1].opcode == OpCodes.Ble_S)
+                    {
+                        Console.WriteLine("Patched upper bounds of cell iteration");
+                        CodeInstruction newInstruction = instruction.Clone(OpCodes.Ldc_I4_2);
+                        newInstruction.labels = instruction.labels;
+                        patchedInstructions.Add(newInstruction);
+                    }
+                    /* else if (instruction.opcode == OpCodes.Ldc_R4 && (float)instruction.operand == 0.5f)
+                    {
+                        if (skipFirst)
+                        {
+                            patchedInstructions.Add(instruction);
+                        }
+                        else
+                        {
+                            patchedInstructions.Add(new CodeInstruction(OpCodes.Ldc_R4, 2.0f));
+                        }
+                    } */
+                    else if (instruction.opcode == OpCodes.Ldc_R4 && (float)instruction.operand == 100.0f)
+                    {
+                        patchedInstructions.RemoveAt(patchedInstructions.Count - 1);
+                        patchedInstructions.Add(new CodeInstruction(OpCodes.Ldc_R4, 900.0f));
+                        patchedInstructions.Add(new CodeInstruction(OpCodes.Ldc_R4, 300.0f));
+                        patchedInstructions.Add(new CodeInstruction(OpCodes.Ldc_R4, 900.0f));
+                        skipNext = true;
+                    }
+                    else
+                    {
+                        patchedInstructions.Add(instruction);
+                    }
+                }
+                return patchedInstructions;
             }
         }
 
