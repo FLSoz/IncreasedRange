@@ -192,13 +192,16 @@ namespace IncreasedRange
             }
         } */
 
-        [HarmonyPatch(typeof(ModuleRadar), "Range", MethodType.Getter)]
+        [HarmonyPatch(typeof(ModuleRadar), "GetRange")]
         public static class PatchModuleRadar
         {
             [HarmonyPostfix]
-            public static void Postfix(ref float __result)
+            public static void Postfix(ModuleRadar.RadarScanType type, ref float __result)
             {
-                __result = Math.Max(IngressPoint.IncreasedRadarRange, __result);
+                if (type == ModuleRadar.RadarScanType.Techs && __result > 0.0f)
+                {
+                    __result = Math.Max(IngressPoint.IncreasedRadarRange, __result);
+                }
             }
         }
 
@@ -354,6 +357,24 @@ namespace IncreasedRange
                     }
                 }
                 return patchedInstructions;
+            }
+        }
+
+        [HarmonyPatch(typeof(ManMusic), "SetDanger", new Type[] { typeof(ManMusic.DangerContext.Circumstance), typeof(Tank), typeof(Tank) })]
+        public static class PatchMusic
+        {
+            public static bool Prefix(Tank enemyTech, Tank friendlyTech)
+            {
+                if (enemyTech.IsNotNull() && friendlyTech.IsNotNull())
+                {
+                    // Only play music if within danger player radius
+                    if ((enemyTech.transform.position - friendlyTech.transform.position).sqrMagnitude < Globals.inst.m_DangerPlayerRadius * Globals.inst.m_DangerPlayerRadius)
+                    {
+                        return true;
+                    }
+                    return false;
+                }
+                return true;
             }
         }
 
